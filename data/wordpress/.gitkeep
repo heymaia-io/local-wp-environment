@@ -1,0 +1,2 @@
+# This file ensures the wordpress data directory is tracked in Git
+# The actual WordPress files will be ignored via .gitignore

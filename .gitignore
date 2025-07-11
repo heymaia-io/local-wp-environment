@@ -1,5 +1,11 @@
 # Local WordPress Development Environment
 
+# Ignore data folder contents but keep folder structure
+data/mysql/*
+data/wordpress/*
+!data/mysql/.gitkeep
+!data/wordpress/.gitkeep
+
 # Ignore log files
 *.log
 

@@ -12,6 +12,7 @@ This is a Docker-based WordPress development environment for general WordPress d
 - Live mounting support for plugin development
 - Custom WordPress configuration for development
 - Easy plugin mounting and management
+- Local data storage (not tracked in Git)
 
 ## Quick Start
 
@@ -50,7 +51,7 @@ To develop plugins, you can mount them into the WordPress instance by adding vol
 
 ```yaml
 volumes:
-  - wordpress_data:/var/www/html
+  - ./data/wordpress:/var/www/html
   - ./your-plugin:/var/www/html/wp-content/plugins/your-plugin
 ```
 
@@ -70,7 +71,7 @@ To mount your own plugins for development, edit the `docker-compose.yml` file an
 
 ```yaml
 volumes:
-  - wordpress_data:/var/www/html
+  - ./data/wordpress:/var/www/html
   - ./my-plugin:/var/www/html/wp-content/plugins/my-plugin
 ```
 
@@ -92,6 +93,26 @@ If ports 8080 or 8081 are already in use on your system, you can change them in 
 ports:
   - '8090:80' # WordPress will be available on http://localhost:8090
 ```
+
+## Local Data Storage
+
+This environment stores all data locally in the `data/` folder:
+
+- **WordPress files:** `data/wordpress/` - Contains all WordPress core files, plugins, themes, and uploads
+- **Database files:** `data/mysql/` - Contains the MariaDB database files
+
+**Benefits:**
+
+- Faster performance compared to Docker volumes
+- Easy to backup - just copy the `data/` folder
+- Persistent data that survives container recreation
+- Easy to inspect and debug files
+
+**Git Integration:**
+
+- The `data/` folder structure is tracked in Git
+- The actual content is ignored via `.gitignore`
+- Fresh clones will have empty data folders ready for use
 
 ## Custom WordPress Configuration
 

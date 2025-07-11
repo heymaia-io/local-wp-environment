@@ -1,0 +1,2 @@
+# This file ensures the mysql data directory is tracked in Git
+# The actual database files will be ignored via .gitignore

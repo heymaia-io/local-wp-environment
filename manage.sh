@@ -37,7 +37,7 @@ start() {
     print_status "Starting WordPress development environment..."
     check_docker
     
-    docker-compose up -d
+    docker compose up -d
     
     print_status "Waiting for WordPress to be ready..."
     sleep 30
@@ -54,7 +54,7 @@ start() {
 # Stop the environment
 stop() {
     print_status "Stopping WordPress development environment..."
-    docker-compose down
+    docker compose down
     print_status "Environment stopped."
 }
 
@@ -76,7 +76,7 @@ setup_wordpress() {
     done
     
     # Install WordPress
-    docker-compose exec -T wpcli wp core install \
+    docker compose exec -T wpcli wp core install \
         --url="http://localhost:8080" \
         --title="WordPress Development Site" \
         --admin_user="admin" \
@@ -85,13 +85,13 @@ setup_wordpress() {
         --skip-email
     
     # Include custom wp-config settings
-    docker-compose exec -T wpcli wp config set --raw UPLOADS "'wp-content/media-files'"
-    docker-compose exec -T wpcli wp config set --raw WP_AUTO_UPDATE_CORE "false"
-    docker-compose exec -T wpcli wp config set --raw DISALLOW_FILE_EDIT "true"
-    docker-compose exec -T wpcli wp config set --raw WP_DEBUG "true"
-    docker-compose exec -T wpcli wp config set --raw WP_DEBUG_LOG "true"
-    docker-compose exec -T wpcli wp config set --raw WP_DEBUG_DISPLAY "false"
-    docker-compose exec -T wpcli wp config set --raw SCRIPT_DEBUG "true"
+    docker compose exec -T wpcli wp config set --raw UPLOADS "'wp-content/media-files'"
+    docker compose exec -T wpcli wp config set --raw WP_AUTO_UPDATE_CORE "false"
+    docker compose exec -T wpcli wp config set --raw DISALLOW_FILE_EDIT "true"
+    docker compose exec -T wpcli wp config set --raw WP_DEBUG "true"
+    docker compose exec -T wpcli wp config set --raw WP_DEBUG_LOG "true"
+    docker compose exec -T wpcli wp config set --raw WP_DEBUG_DISPLAY "false"
+    docker compose exec -T wpcli wp config set --raw SCRIPT_DEBUG "true"
     
     print_status "WordPress setup completed!"
 }
@@ -102,8 +102,15 @@ clean() {
     read -r response
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
         print_status "Cleaning environment..."
-        docker-compose down -v
-        docker volume rm local-wp_wordpress_data local-wp_db_data 2>/dev/null || true
+        docker compose down
+        
+        # Remove local data folders content but keep the folders
+        print_status "Removing WordPress data..."
+        rm -rf ./data/wordpress/* 2>/dev/null || true
+        
+        print_status "Removing MySQL data..."
+        rm -rf ./data/mysql/* 2>/dev/null || true
+        
         print_status "Environment cleaned."
     else
         print_status "Clean operation cancelled."
@@ -112,7 +119,7 @@ clean() {
 
 # Show logs
 logs() {
-    docker-compose logs -f
+    docker compose logs -f
 }
 
 # Run WP-CLI commands
@@ -121,13 +128,13 @@ wpcli() {
         print_error "Please provide a WP-CLI command. Example: ./manage.sh wpcli plugin list"
         exit 1
     fi
-    docker-compose exec wpcli wp "$@"
+    docker compose exec wpcli wp "$@"
 }
 
 # Show status
 status() {
     print_status "Environment Status:"
-    docker-compose ps
+    docker compose ps
     echo ""
     print_status "WordPress: http://localhost:8080"
     print_status "PHPMyAdmin: http://localhost:8081"

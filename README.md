@@ -1,6 +1,6 @@
 # WordPress Development Environment
 
-This is a Docker-based WordPress development environment for general WordPress 3. **Plugin not visible:** Ensure your plugin folder is properly mounted in docker-compose.ymlevelopment and plugin testing.
+This is a Docker-based WordPress development environment for general WordPress development.
 
 ## Features
 
@@ -145,7 +145,7 @@ Configure your IDE to listen on port 9003 for Xdebug connections.
 1. **Docker not running:** Make sure Docker Desktop is running
 2. **Port conflicts:** If ports 8080 or 8081 are in use, modify the docker-compose.yml
 3. **Permission issues:** The containers run as user 33 (www-data)
-4. **Plugin not visible:** Ensure the heymaia-wp-config folder exists in the parent directory
+4. **Plugin not visible:** Ensure your plugin folder is properly mounted in docker-compose.yml
 
 ## Clean Start
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * Custom WordPress configuration additions
+ * Custom WordPress configuration additions for development
  * This file will be included in wp-config.php
  */
 

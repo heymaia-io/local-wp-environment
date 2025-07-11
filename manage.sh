@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# HeyMaia WordPress Development Environment
+# WordPress Development Environment Manager
 # This script helps you manage your local WordPress development environment
 
 set -e
@@ -34,7 +34,7 @@ check_docker() {
 
 # Start the environment
 start() {
-    print_status "Starting HeyMaia WordPress development environment..."
+    print_status "Starting WordPress development environment..."
     check_docker
     
     docker-compose up -d
@@ -48,19 +48,19 @@ start() {
     print_status "Environment is ready!"
     print_status "WordPress: http://localhost:8080"
     print_status "PHPMyAdmin: http://localhost:8081"
-    print_status "Admin credentials: support@heymaia.io / jzFd\$78ZE&j5ar@!Lx7C8!73&qaHK*6q!&44S#84"
+    print_status "Admin credentials: admin / admin_password123"
 }
 
 # Stop the environment
 stop() {
-    print_status "Stopping HeyMaia WordPress development environment..."
+    print_status "Stopping WordPress development environment..."
     docker-compose down
     print_status "Environment stopped."
 }
 
 # Restart the environment
 restart() {
-    print_status "Restarting HeyMaia WordPress development environment..."
+    print_status "Restarting WordPress development environment..."
     stop
     start
 }
@@ -78,10 +78,10 @@ setup_wordpress() {
     # Install WordPress
     docker-compose exec -T wpcli wp core install \
         --url="http://localhost:8080" \
-        --title="HeyMaia Development Site" \
-        --admin_user="support@heymaia.io" \
-        --admin_password="jzFd\$78ZE&j5ar@!Lx7C8!73&qaHK*6q!&44S#84" \
-        --admin_email="support@heymaia.io" \
+        --title="WordPress Development Site" \
+        --admin_user="admin" \
+        --admin_password="admin_password123" \
+        --admin_email="admin@localhost.dev" \
         --skip-email
     
     # Include custom wp-config settings
@@ -135,7 +135,7 @@ status() {
 
 # Show help
 help() {
-    echo "HeyMaia WordPress Development Environment Manager"
+    echo "WordPress Development Environment Manager"
     echo ""
     echo "Usage: ./manage.sh [command]"
     echo ""
@@ -151,7 +151,7 @@ help() {
     echo ""
     echo "Examples:"
     echo "  ./manage.sh start"
-    echo "  ./manage.sh wpcli plugin activate heymaia-wp-config"
+    echo "  ./manage.sh wpcli plugin install contact-form-7"
     echo "  ./manage.sh logs"
 }
 

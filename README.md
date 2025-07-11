@@ -1,6 +1,6 @@
-# HeyMaia WordPress Development Environment
+# WordPress Development Environment
 
-This is a Docker-based WordPress development environment specifically configured for developing the HeyMaia WordPress plugin.
+This is a Docker-based WordPress development environment for general WordPress 3. **Plugin not visible:** Ensure your plugin folder is properly mounted in docker-compose.ymlevelopment and plugin testing.
 
 ## Features
 
@@ -9,8 +9,9 @@ This is a Docker-based WordPress development environment specifically configured
 - PHPMyAdmin for database management
 - WP-CLI for command-line WordPress management
 - Xdebug for debugging
-- Live mounting of the heymaia-wp-config plugin
-- Custom WordPress configuration matching your requirements
+- Live mounting support for plugin development
+- Custom WordPress configuration for development
+- Easy plugin mounting and management
 
 ## Quick Start
 
@@ -26,8 +27,8 @@ This is a Docker-based WordPress development environment specifically configured
    - PHPMyAdmin: http://localhost:8081
 
 3. **Login credentials:**
-   - Username: `support@heymaia.io`
-   - Password: `jzFd$78ZE&j5ar@!Lx7C8!73&qaHK*6q!&44S#84`
+   - Username: `admin`
+   - Password: `admin_password123`
 
 ## Management Commands
 
@@ -45,17 +46,51 @@ The `manage.sh` script provides easy management of your development environment:
 
 ## Plugin Development
 
-Your `heymaia-wp-config` plugin is automatically mounted into the WordPress instance at:
+To develop plugins, you can mount them into the WordPress instance by adding volumes to the `docker-compose.yml` file:
 
-- Host path: `../heymaia-wp-config/`
-- Container path: `/var/www/html/wp-content/plugins/heymaia-wp-config/`
+```yaml
+volumes:
+  - wordpress_data:/var/www/html
+  - ./your-plugin:/var/www/html/wp-content/plugins/your-plugin
+```
 
-Any changes you make to the plugin files will be immediately reflected in WordPress.
+Any changes you make to mounted plugin files will be immediately reflected in WordPress.
 
 To activate your plugin:
 
 ```bash
-./manage.sh wpcli plugin activate heymaia-wp-config
+./manage.sh wpcli plugin activate your-plugin-name
+```
+
+## Customizing for Your Project
+
+### Mounting Your Plugins
+
+To mount your own plugins for development, edit the `docker-compose.yml` file and add volume mounts under both the `wordpress` and `wpcli` services:
+
+```yaml
+volumes:
+  - wordpress_data:/var/www/html
+  - ./my-plugin:/var/www/html/wp-content/plugins/my-plugin
+```
+
+### Changing Admin Credentials
+
+You can customize the WordPress admin credentials by editing the `manage.sh` file in the `setup_wordpress()` function. Look for these lines:
+
+```bash
+--admin_user="admin" \
+--admin_password="admin_password123" \
+--admin_email="admin@localhost.dev" \
+```
+
+### Port Configuration
+
+If ports 8080 or 8081 are already in use on your system, you can change them in `docker-compose.yml`:
+
+```yaml
+ports:
+  - '8090:80' # WordPress will be available on http://localhost:8090
 ```
 
 ## Custom WordPress Configuration

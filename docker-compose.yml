@@ -1,9 +1,7 @@
-version: '3.8'
-
 services:
   wordpress:
     image: wordpress:6.8.1-php8.4-apache
-    container_name: heymaia_wordpress
+    container_name: wp_dev_wordpress
     restart: unless-stopped
     ports:
       - '8080:80'
@@ -18,8 +16,8 @@ services:
       XDEBUG_CONFIG: client_host=host.docker.internal
     volumes:
       - wordpress_data:/var/www/html
-      # Mount the heymaia-wp-config plugin
-      - ../heymaia-wp-config:/var/www/html/wp-content/plugins/heymaia-wp-config
+      # Mount your plugins here for development
+      # Example: - ./your-plugin:/var/www/html/wp-content/plugins/your-plugin
       # Custom PHP configuration
       - ./php.ini:/usr/local/etc/php/conf.d/custom.ini
       # Custom wp-config additions
@@ -31,7 +29,7 @@ services:
 
   db:
     image: mariadb:11.4.7
-    container_name: heymaia_mariadb
+    container_name: wp_dev_mariadb
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: wordpress
@@ -45,7 +43,7 @@ services:
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
-    container_name: heymaia_phpmyadmin
+    container_name: wp_dev_phpmyadmin
     restart: unless-stopped
     ports:
       - '8081:80'
@@ -60,12 +58,13 @@ services:
 
   wpcli:
     image: wordpress:cli-php8.4
-    container_name: heymaia_wpcli
+    container_name: wp_dev_wpcli
     restart: 'no'
     user: '33:33'
     volumes:
       - wordpress_data:/var/www/html
-      - ../heymaia-wp-config:/var/www/html/wp-content/plugins/heymaia-wp-config
+      # Mount your plugins here for WP-CLI access
+      # Example: - ./your-plugin:/var/www/html/wp-content/plugins/your-plugin
     environment:
       WORDPRESS_DB_HOST: db:3306
       WORDPRESS_DB_USER: wordpress

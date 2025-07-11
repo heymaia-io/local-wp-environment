@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  wordpress:
+    image: wordpress:6.8.1-php8.4-apache
+    container_name: heymaia_wordpress
+    restart: unless-stopped
+    ports:
+      - '8080:80'
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress_password
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_TABLE_PREFIX: wp_
+      # Enable Xdebug
+      XDEBUG_MODE: develop,debug
+      XDEBUG_CONFIG: client_host=host.docker.internal
+    volumes:
+      - wordpress_data:/var/www/html
+      # Mount the heymaia-wp-config plugin
+      - ../heymaia-wp-config:/var/www/html/wp-content/plugins/heymaia-wp-config
+      # Custom PHP configuration
+      - ./php.ini:/usr/local/etc/php/conf.d/custom.ini
+      # Custom wp-config additions
+      - ./wp-config-custom.php:/var/www/html/wp-config-custom.php
+    depends_on:
+      - db
+    networks:
+      - wordpress_network
+
+  db:
+    image: mariadb:11.4.7
+    container_name: heymaia_mariadb
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress_password
+      MYSQL_ROOT_PASSWORD: root_password
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - wordpress_network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: heymaia_phpmyadmin
+    restart: unless-stopped
+    ports:
+      - '8081:80'
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: root_password
+    depends_on:
+      - db
+    networks:
+      - wordpress_network
+
+  wpcli:
+    image: wordpress:cli-php8.4
+    container_name: heymaia_wpcli
+    restart: 'no'
+    user: '33:33'
+    volumes:
+      - wordpress_data:/var/www/html
+      - ../heymaia-wp-config:/var/www/html/wp-content/plugins/heymaia-wp-config
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress_password
+      WORDPRESS_DB_NAME: wordpress
+    depends_on:
+      - db
+      - wordpress
+    networks:
+      - wordpress_network
+    command: tail -f /dev/null
+
+volumes:
+  wordpress_data:
+  db_data:
+
+networks:
+  wordpress_network:
+    driver: bridge

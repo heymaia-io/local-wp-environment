@@ -17,7 +17,6 @@ services:
       - ./data/wordpress:/var/www/html
       # Mount your plugins here for development
       # Example: - ./your-plugin:/var/www/html/wp-content/plugins/your-plugin
-      - ../heymaia-wp-config:/var/www/html/wp-content/plugins/heymaia-wp-config
       # Custom PHP configuration
       - ./php.ini:/usr/local/etc/php/conf.d/custom.ini
       # Custom wp-config additions
@@ -62,7 +61,6 @@ services:
       - ./data/wordpress:/var/www/html
       # Mount your plugins here for WP-CLI access
       # Example: - ./your-plugin:/var/www/html/wp-content/plugins/your-plugin
-      - ../heymaia-wp-config:/var/www/html/wp-content/plugins/heymaia-wp-config
     environment:
       WORDPRESS_DB_HOST: db:3306
       WORDPRESS_DB_USER: wordpress

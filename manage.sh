@@ -89,14 +89,23 @@ setup_wordpress() {
         sleep 5
     done
     
-    # Install WordPress
-    docker compose exec -T wpcli wp core install \
-        --url="$WORDPRESS_URL" \
-        --title="$WORDPRESS_TITLE" \
-        --admin_user="$WORDPRESS_ADMIN_USER" \
-        --admin_password="$WORDPRESS_ADMIN_PASSWORD" \
-        --admin_email="$WORDPRESS_ADMIN_EMAIL" \
-        --skip-email
+    # Check if WordPress is already installed
+    if docker compose exec -T wpcli wp core is-installed 2>/dev/null; then
+        print_status "WordPress already installed. Updating site title..."
+        docker compose exec -T wpcli wp option update blogname "$WORDPRESS_TITLE"
+        docker compose exec -T wpcli wp option update home "$WORDPRESS_URL"
+        docker compose exec -T wpcli wp option update siteurl "$WORDPRESS_URL"
+    else
+        print_status "Installing WordPress..."
+        # Install WordPress
+        docker compose exec -T wpcli wp core install \
+            --url="$WORDPRESS_URL" \
+            --title="$WORDPRESS_TITLE" \
+            --admin_user="$WORDPRESS_ADMIN_USER" \
+            --admin_password="$WORDPRESS_ADMIN_PASSWORD" \
+            --admin_email="$WORDPRESS_ADMIN_EMAIL" \
+            --skip-email
+    fi
     
     # Include custom wp-config settings
     docker compose exec -T wpcli wp config set --raw UPLOADS "'wp-content/media-files'"

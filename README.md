@@ -48,7 +48,7 @@ PHPMYADMIN_PORT=8081
 
 # WordPress Site Configuration
 WORDPRESS_URL=http://localhost:8080
-WORDPRESS_TITLE=My Development Site
+WORDPRESS_TITLE='My Development Site'
 
 # Admin User Configuration
 WORDPRESS_ADMIN_USER=admin

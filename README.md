@@ -31,6 +31,43 @@ This is a Docker-based WordPress development environment for general WordPress d
    - Username: `admin`
    - Password: `admin_password123`
 
+## Running Multiple Instances
+
+Need to test plugins with multiple WordPress sites (e.g., master/client setup)? Simply clone the repository multiple times:
+
+```bash
+# Clone for master instance
+git clone https://github.com/heymaia-io/wordpress-docker-dev.git wordpress-master
+cd wordpress-master
+./manage.sh start
+# Master: http://localhost:8080, PHPMyAdmin: http://localhost:8081
+
+# Clone for client instance
+git clone https://github.com/heymaia-io/wordpress-docker-dev.git wordpress-client
+cd wordpress-client
+```
+
+**Update ports in client instance** by editing `docker-compose.yml`:
+
+```yaml
+# WordPress service
+ports:
+  - '8090:80'  # Change from 8080 to 8090
+
+# PHPMyAdmin service
+ports:
+  - '8091:80'  # Change from 8081 to 8091
+```
+
+Then start the client:
+
+```bash
+./manage.sh start
+# Client: http://localhost:8090, PHPMyAdmin: http://localhost:8091
+```
+
+Each instance has completely isolated data and can run different plugins or configurations!
+
 ## Management Commands
 
 The `manage.sh` script provides easy management of your development environment:

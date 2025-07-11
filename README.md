@@ -31,32 +31,59 @@ This is a Docker-based WordPress development environment for general WordPress d
    - Username: `admin`
    - Password: `admin_password123`
 
+## Environment Configuration
+
+You can customize the environment by creating a `.env` file:
+
+```bash
+cp .env.example .env
+```
+
+Then edit `.env` to customize:
+
+```bash
+# Port Configuration
+WORDPRESS_PORT=8080
+PHPMYADMIN_PORT=8081
+
+# WordPress Site Configuration
+WORDPRESS_URL=http://localhost:8080
+WORDPRESS_TITLE=My Development Site
+
+# Admin User Configuration
+WORDPRESS_ADMIN_USER=admin
+WORDPRESS_ADMIN_PASSWORD=admin_password123
+WORDPRESS_ADMIN_EMAIL=admin@localhost.dev
+```
+
+All changes in `.env` are automatically applied when you run `./manage.sh start`!
+
 ## Running Multiple Instances
 
-Need to test plugins with multiple WordPress sites (e.g., master/client setup)? Simply clone the repository multiple times:
+Need to test plugins with multiple WordPress sites (e.g., master/client setup)? Simply clone the repository multiple times and configure different ports:
 
 ```bash
 # Clone for master instance
 git clone https://github.com/heymaia-io/wordpress-docker-dev.git wordpress-master
 cd wordpress-master
+cp .env.example .env
+# Keep default ports (8080, 8081)
 ./manage.sh start
 # Master: http://localhost:8080, PHPMyAdmin: http://localhost:8081
 
 # Clone for client instance
 git clone https://github.com/heymaia-io/wordpress-docker-dev.git wordpress-client
 cd wordpress-client
+cp .env.example .env
 ```
 
-**Update ports in client instance** by editing `docker-compose.yml`:
+**Configure different ports for client instance** by editing `.env`:
 
-```yaml
-# WordPress service
-ports:
-  - '8090:80'  # Change from 8080 to 8090
-
-# PHPMyAdmin service
-ports:
-  - '8091:80'  # Change from 8081 to 8091
+```bash
+# Edit .env file
+WORDPRESS_PORT=8090
+PHPMYADMIN_PORT=8091
+WORDPRESS_URL=http://localhost:8090
 ```
 
 Then start the client:
@@ -66,7 +93,12 @@ Then start the client:
 # Client: http://localhost:8090, PHPMyAdmin: http://localhost:8091
 ```
 
-Each instance has completely isolated data and can run different plugins or configurations!
+**Benefits of this approach:**
+
+- ✅ No need to edit docker-compose.yml manually
+- ✅ All configuration in one place (.env file)
+- ✅ Easy to manage multiple instances
+- ✅ Each instance completely isolated
 
 ## Management Commands
 

@@ -5,6 +5,20 @@
 
 set -e
 
+# Load environment variables
+if [ -f .env ]; then
+    export $(cat .env | grep -v '^#' | xargs)
+fi
+
+# Set default values if not provided in .env
+export WORDPRESS_PORT=${WORDPRESS_PORT:-8080}
+export PHPMYADMIN_PORT=${PHPMYADMIN_PORT:-8081}
+export WORDPRESS_URL=${WORDPRESS_URL:-"http://localhost:$WORDPRESS_PORT"}
+export WORDPRESS_TITLE=${WORDPRESS_TITLE:-"WordPress Development Site"}
+export WORDPRESS_ADMIN_USER=${WORDPRESS_ADMIN_USER:-"admin"}
+export WORDPRESS_ADMIN_PASSWORD=${WORDPRESS_ADMIN_PASSWORD:-"admin_password123"}
+export WORDPRESS_ADMIN_EMAIL=${WORDPRESS_ADMIN_EMAIL:-"admin@localhost.dev"}
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -46,9 +60,9 @@ start() {
     setup_wordpress
     
     print_status "Environment is ready!"
-    print_status "WordPress: http://localhost:8080"
-    print_status "PHPMyAdmin: http://localhost:8081"
-    print_status "Admin credentials: admin / admin_password123"
+    print_status "WordPress: http://localhost:$WORDPRESS_PORT"
+    print_status "PHPMyAdmin: http://localhost:$PHPMYADMIN_PORT"
+    print_status "Admin credentials: $WORDPRESS_ADMIN_USER / $WORDPRESS_ADMIN_PASSWORD"
 }
 
 # Stop the environment
@@ -70,18 +84,18 @@ setup_wordpress() {
     print_status "Setting up WordPress..."
     
     # Wait for WordPress to be accessible
-    until curl -f http://localhost:8080 > /dev/null 2>&1; do
+    until curl -f http://localhost:$WORDPRESS_PORT > /dev/null 2>&1; do
         print_status "Waiting for WordPress to be accessible..."
         sleep 5
     done
     
     # Install WordPress
     docker compose exec -T wpcli wp core install \
-        --url="http://localhost:8080" \
-        --title="WordPress Development Site" \
-        --admin_user="admin" \
-        --admin_password="admin_password123" \
-        --admin_email="admin@localhost.dev" \
+        --url="$WORDPRESS_URL" \
+        --title="$WORDPRESS_TITLE" \
+        --admin_user="$WORDPRESS_ADMIN_USER" \
+        --admin_password="$WORDPRESS_ADMIN_PASSWORD" \
+        --admin_email="$WORDPRESS_ADMIN_EMAIL" \
         --skip-email
     
     # Include custom wp-config settings
@@ -136,8 +150,8 @@ status() {
     print_status "Environment Status:"
     docker compose ps
     echo ""
-    print_status "WordPress: http://localhost:8080"
-    print_status "PHPMyAdmin: http://localhost:8081"
+    print_status "WordPress: http://localhost:$WORDPRESS_PORT"
+    print_status "PHPMyAdmin: http://localhost:$PHPMYADMIN_PORT"
 }
 
 # Show help

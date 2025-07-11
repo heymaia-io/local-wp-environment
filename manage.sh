@@ -7,7 +7,9 @@ set -e
 
 # Load environment variables
 if [ -f .env ]; then
-    export $(cat .env | grep -v '^#' | xargs)
+    set -o allexport
+    source .env
+    set +o allexport
 fi
 
 # Set default values if not provided in .env
@@ -91,6 +93,7 @@ restart() {
 # Setup WordPress (run once)
 setup_wordpress() {
     print_status "Setting up WordPress..."
+    print_status "Using title: '$WORDPRESS_TITLE'"
     
     # Wait for WordPress to be accessible
     until curl -f http://localhost:$WORDPRESS_PORT > /dev/null 2>&1; do

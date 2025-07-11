@@ -24,3 +24,4 @@ data/wordpress/*
 
 # Ignore any local configuration overrides
 docker-compose.override.yml
+docker-compose.dev.yml

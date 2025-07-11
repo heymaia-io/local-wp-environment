@@ -19,6 +19,15 @@ export WORDPRESS_ADMIN_USER=${WORDPRESS_ADMIN_USER:-"admin"}
 export WORDPRESS_ADMIN_PASSWORD=${WORDPRESS_ADMIN_PASSWORD:-"admin_password123"}
 export WORDPRESS_ADMIN_EMAIL=${WORDPRESS_ADMIN_EMAIL:-"admin@localhost.dev"}
 
+# Determine which docker-compose file to use
+COMPOSE_FILE="docker-compose.yml"
+if [ -f "docker-compose.dev.yml" ]; then
+    COMPOSE_FILE="docker-compose.dev.yml"
+    echo -e "\033[0;33m[DEV]\033[0m Using docker-compose.dev.yml (custom development setup)"
+else
+    echo -e "\033[0;32m[INFO]\033[0m Using docker-compose.yml (default setup)"
+fi
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -51,7 +60,7 @@ start() {
     print_status "Starting WordPress development environment..."
     check_docker
     
-    docker compose up -d
+    docker compose -f $COMPOSE_FILE up -d
     
     print_status "Waiting for WordPress to be ready..."
     sleep 30
@@ -68,7 +77,7 @@ start() {
 # Stop the environment
 stop() {
     print_status "Stopping WordPress development environment..."
-    docker compose down
+    docker compose -f $COMPOSE_FILE down
     print_status "Environment stopped."
 }
 
@@ -90,15 +99,15 @@ setup_wordpress() {
     done
     
     # Check if WordPress is already installed
-    if docker compose exec -T wpcli wp core is-installed 2>/dev/null; then
+    if docker compose -f $COMPOSE_FILE exec -T wpcli wp core is-installed 2>/dev/null; then
         print_status "WordPress already installed. Updating site title..."
-        docker compose exec -T wpcli wp option update blogname "$WORDPRESS_TITLE"
-        docker compose exec -T wpcli wp option update home "$WORDPRESS_URL"
-        docker compose exec -T wpcli wp option update siteurl "$WORDPRESS_URL"
+        docker compose -f $COMPOSE_FILE exec -T wpcli wp option update blogname "$WORDPRESS_TITLE"
+        docker compose -f $COMPOSE_FILE exec -T wpcli wp option update home "$WORDPRESS_URL"
+        docker compose -f $COMPOSE_FILE exec -T wpcli wp option update siteurl "$WORDPRESS_URL"
     else
         print_status "Installing WordPress..."
         # Install WordPress
-        docker compose exec -T wpcli wp core install \
+        docker compose -f $COMPOSE_FILE exec -T wpcli wp core install \
             --url="$WORDPRESS_URL" \
             --title="$WORDPRESS_TITLE" \
             --admin_user="$WORDPRESS_ADMIN_USER" \
@@ -108,13 +117,13 @@ setup_wordpress() {
     fi
     
     # Include custom wp-config settings
-    docker compose exec -T wpcli wp config set --raw UPLOADS "'wp-content/media-files'"
-    docker compose exec -T wpcli wp config set --raw WP_AUTO_UPDATE_CORE "false"
-    docker compose exec -T wpcli wp config set --raw DISALLOW_FILE_EDIT "true"
-    docker compose exec -T wpcli wp config set --raw WP_DEBUG "true"
-    docker compose exec -T wpcli wp config set --raw WP_DEBUG_LOG "true"
-    docker compose exec -T wpcli wp config set --raw WP_DEBUG_DISPLAY "false"
-    docker compose exec -T wpcli wp config set --raw SCRIPT_DEBUG "true"
+    docker compose -f $COMPOSE_FILE exec -T wpcli wp config set --raw UPLOADS "'wp-content/media-files'"
+    docker compose -f $COMPOSE_FILE exec -T wpcli wp config set --raw WP_AUTO_UPDATE_CORE "false"
+    docker compose -f $COMPOSE_FILE exec -T wpcli wp config set --raw DISALLOW_FILE_EDIT "true"
+    docker compose -f $COMPOSE_FILE exec -T wpcli wp config set --raw WP_DEBUG "true"
+    docker compose -f $COMPOSE_FILE exec -T wpcli wp config set --raw WP_DEBUG_LOG "true"
+    docker compose -f $COMPOSE_FILE exec -T wpcli wp config set --raw WP_DEBUG_DISPLAY "false"
+    docker compose -f $COMPOSE_FILE exec -T wpcli wp config set --raw SCRIPT_DEBUG "true"
     
     print_status "WordPress setup completed!"
 }
@@ -125,7 +134,7 @@ clean() {
     read -r response
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
         print_status "Cleaning environment..."
-        docker compose down
+        docker compose -f $COMPOSE_FILE down
         
         # Remove local data folders content but keep the folders
         print_status "Removing WordPress data..."
@@ -142,7 +151,7 @@ clean() {
 
 # Show logs
 logs() {
-    docker compose logs -f
+    docker compose -f $COMPOSE_FILE logs -f
 }
 
 # Run WP-CLI commands
@@ -151,13 +160,13 @@ wpcli() {
         print_error "Please provide a WP-CLI command. Example: ./manage.sh wpcli plugin list"
         exit 1
     fi
-    docker compose exec wpcli wp "$@"
+    docker compose -f $COMPOSE_FILE exec wpcli wp "$@"
 }
 
 # Show status
 status() {
     print_status "Environment Status:"
-    docker compose ps
+    docker compose -f $COMPOSE_FILE ps
     echo ""
     print_status "WordPress: http://localhost:$WORDPRESS_PORT"
     print_status "PHPMyAdmin: http://localhost:$PHPMYADMIN_PORT"
@@ -178,6 +187,14 @@ help() {
     echo "  clean     Clean environment (removes all data)"
     echo "  wpcli     Run WP-CLI commands (e.g., ./manage.sh wpcli plugin list)"
     echo "  help      Show this help message"
+    echo ""
+    echo "Configuration:"
+    echo "  .env                    Environment variables (copy from .env.example)"
+    echo "  docker-compose.dev.yml  Development overrides (ignored by Git)"
+    echo ""
+    echo "Development Mode:"
+    echo "  If docker-compose.dev.yml exists, it will be used instead of docker-compose.yml"
+    echo "  This allows you to safely customize volumes and other settings locally"
     echo ""
     echo "Examples:"
     echo "  ./manage.sh start"

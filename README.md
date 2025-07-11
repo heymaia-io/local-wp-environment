@@ -58,6 +58,38 @@ WORDPRESS_ADMIN_EMAIL=admin@localhost.dev
 
 All changes in `.env` are automatically applied when you run `./manage.sh start`!
 
+## Development Customizations
+
+Need to mount custom plugins or themes? Create a development override file:
+
+```bash
+# Copy the main compose file to create a development version
+cp docker-compose.yml docker-compose.dev.yml
+
+# Edit docker-compose.dev.yml to add your plugin/theme mounts
+# Example: Add volumes under the wordpress and wpcli services:
+# services:
+#   wordpress:
+#     volumes:
+#       - ./data/wordpress:/var/www/html
+#       - ../my-plugin:/var/www/html/wp-content/plugins/my-plugin
+#       - ../my-theme:/var/www/html/wp-content/themes/my-theme
+#       # ... other existing volumes
+#   wpcli:
+#     volumes:
+#       - ./data/wordpress:/var/www/html
+#       - ../my-plugin:/var/www/html/wp-content/plugins/my-plugin
+#       - ../my-theme:/var/www/html/wp-content/themes/my-theme
+#       # ... other existing volumes
+```
+
+**Benefits:**
+
+- ✅ `docker-compose.dev.yml` is ignored by Git (safe to customize)
+- ✅ `manage.sh` automatically detects and uses the dev file when present
+- ✅ No risk of accidentally committing your local plugin mounts
+- ✅ Keep the original `docker-compose.yml` clean for the public repo
+
 ## Running Multiple Instances
 
 Need to test plugins with multiple WordPress sites (e.g., master/client setup)? Simply clone the repository multiple times and configure different ports:

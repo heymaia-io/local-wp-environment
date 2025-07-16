@@ -4,7 +4,7 @@ This is a Docker-based WordPress development environment for general WordPress d
 
 ## Features
 
-- WordPress 6.8.1 with PHP 8.4
+- WordPress 6.8.2 with PHP 8.4
 - MariaDB 11.4.7 (matching your hosting server)
 - PHPMyAdmin for database management
 - WP-CLI for command-line WordPress management
@@ -13,6 +13,7 @@ This is a Docker-based WordPress development environment for general WordPress d
 - Custom WordPress configuration for development
 - Easy plugin mounting and management
 - Local data storage (not tracked in Git)
+- **Dual user setup:** Automatic creation of Admin and Editor users for role-based testing
 
 ## Quick Start
 
@@ -28,8 +29,8 @@ This is a Docker-based WordPress development environment for general WordPress d
    - PHPMyAdmin: http://localhost:8081
 
 3. **Login credentials:**
-   - Username: `admin`
-   - Password: `admin_password123`
+   - **Admin:** Username: `admin`, Password: `admin_password123`
+   - **Editor:** Username: `editor`, Password: `editor_password123`
 
 ## Environment Configuration
 
@@ -54,9 +55,34 @@ WORDPRESS_TITLE='My Development Site'
 WORDPRESS_ADMIN_USER=admin
 WORDPRESS_ADMIN_PASSWORD=admin_password123
 WORDPRESS_ADMIN_EMAIL=admin@localhost.dev
+
+# Editor User Configuration (optional - will be created automatically)
+WORDPRESS_EDITOR_USER=editor
+WORDPRESS_EDITOR_PASSWORD=editor_password123
+WORDPRESS_EDITOR_EMAIL=editor@localhost.dev
 ```
 
 All changes in `.env` are automatically applied when you run `./manage.sh start`!
+
+## User Roles & Testing
+
+The environment automatically creates two users for comprehensive testing:
+
+### Administrator User
+
+- **Username:** `admin` (configurable via `WORDPRESS_ADMIN_USER`)
+- **Password:** `admin_password123` (configurable via `WORDPRESS_ADMIN_PASSWORD`)
+- **Capabilities:** Full site management, plugin installation, theme editing, user management
+- **Use for:** Site configuration, plugin development, admin-only features
+
+### Editor User
+
+- **Username:** `editor` (configurable via `WORDPRESS_EDITOR_USER`)
+- **Password:** `editor_password123` (configurable via `WORDPRESS_EDITOR_PASSWORD`)
+- **Capabilities:** Content creation, post/page management, media uploads (limited admin access)
+- **Use for:** Testing content workflows, role-based plugin features, editor-specific functionality
+
+This dual-user setup allows you to test plugins and themes with different permission levels without manually creating users or switching roles.
 
 ## Development Customizations
 
@@ -244,7 +270,8 @@ Plus development-friendly settings like WP_DEBUG enabled.
 # Install a plugin
 ./manage.sh wpcli plugin install contact-form-7
 
-# Create a new user
+# User management (Admin and Editor users are created automatically)
+./manage.sh wpcli user list
 ./manage.sh wpcli user create developer dev@example.com --role=administrator
 
 # Export/Import database

@@ -13,6 +13,17 @@ services:
       # Enable Xdebug
       XDEBUG_MODE: develop,debug
       XDEBUG_CONFIG: client_host=host.docker.internal
+      # WordPress configuration
+      WORDPRESS_URL: ${WORDPRESS_URL:-http://localhost:8080}
+      WORDPRESS_TITLE: ${WORDPRESS_TITLE:-WordPress Development Site}
+      # Admin user configuration
+      WORDPRESS_ADMIN_USER: ${WORDPRESS_ADMIN_USER:-admin}
+      WORDPRESS_ADMIN_PASSWORD: ${WORDPRESS_ADMIN_PASSWORD:-admin_password123}
+      WORDPRESS_ADMIN_EMAIL: ${WORDPRESS_ADMIN_EMAIL:-admin@localhost.dev}
+      # Editor user configuration
+      WORDPRESS_EDITOR_USER: ${WORDPRESS_EDITOR_USER:-editor}
+      WORDPRESS_EDITOR_PASSWORD: ${WORDPRESS_EDITOR_PASSWORD:-editor_password123}
+      WORDPRESS_EDITOR_EMAIL: ${WORDPRESS_EDITOR_EMAIL:-editor@localhost.dev}
     volumes:
       - ./data/wordpress:/var/www/html
       # Mount your plugins here for development
@@ -66,6 +77,17 @@ services:
       WORDPRESS_DB_USER: wordpress
       WORDPRESS_DB_PASSWORD: wordpress_password
       WORDPRESS_DB_NAME: wordpress
+      # WordPress configuration
+      WORDPRESS_URL: ${WORDPRESS_URL:-http://localhost:8080}
+      WORDPRESS_TITLE: ${WORDPRESS_TITLE:-WordPress Development Site}
+      # Admin user configuration
+      WORDPRESS_ADMIN_USER: ${WORDPRESS_ADMIN_USER:-admin}
+      WORDPRESS_ADMIN_PASSWORD: ${WORDPRESS_ADMIN_PASSWORD:-admin_password123}
+      WORDPRESS_ADMIN_EMAIL: ${WORDPRESS_ADMIN_EMAIL:-admin@localhost.dev}
+      # Editor user configuration
+      WORDPRESS_EDITOR_USER: ${WORDPRESS_EDITOR_USER:-editor}
+      WORDPRESS_EDITOR_PASSWORD: ${WORDPRESS_EDITOR_PASSWORD:-editor_password123}
+      WORDPRESS_EDITOR_EMAIL: ${WORDPRESS_EDITOR_EMAIL:-editor@localhost.dev}
     depends_on:
       - db
       - wordpress

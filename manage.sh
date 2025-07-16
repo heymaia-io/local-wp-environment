@@ -20,6 +20,9 @@ export WORDPRESS_TITLE=${WORDPRESS_TITLE:-"WordPress Development Site"}
 export WORDPRESS_ADMIN_USER=${WORDPRESS_ADMIN_USER:-"admin"}
 export WORDPRESS_ADMIN_PASSWORD=${WORDPRESS_ADMIN_PASSWORD:-"admin_password123"}
 export WORDPRESS_ADMIN_EMAIL=${WORDPRESS_ADMIN_EMAIL:-"admin@localhost.dev"}
+export WORDPRESS_EDITOR_USER=${WORDPRESS_EDITOR_USER:-"editor"}
+export WORDPRESS_EDITOR_PASSWORD=${WORDPRESS_EDITOR_PASSWORD:-"editor_password123"}
+export WORDPRESS_EDITOR_EMAIL=${WORDPRESS_EDITOR_EMAIL:-"editor@localhost.dev"}
 
 # Determine which docker-compose file to use
 COMPOSE_FILE="docker-compose.yml"
@@ -74,6 +77,7 @@ start() {
     print_status "WordPress: http://localhost:$WORDPRESS_PORT"
     print_status "PHPMyAdmin: http://localhost:$PHPMYADMIN_PORT"
     print_status "Admin credentials: $WORDPRESS_ADMIN_USER / $WORDPRESS_ADMIN_PASSWORD"
+    print_status "Editor credentials: $WORDPRESS_EDITOR_USER / $WORDPRESS_EDITOR_PASSWORD"
 }
 
 # Stop the environment
@@ -127,6 +131,22 @@ setup_wordpress() {
     docker compose -f $COMPOSE_FILE exec -T wpcli wp config set --raw WP_DEBUG_LOG "true"
     docker compose -f $COMPOSE_FILE exec -T wpcli wp config set --raw WP_DEBUG_DISPLAY "false"
     docker compose -f $COMPOSE_FILE exec -T wpcli wp config set --raw SCRIPT_DEBUG "true"
+    
+    # Create editor user if it doesn't exist
+    if ! docker compose -f $COMPOSE_FILE exec -T wpcli wp user get "$WORDPRESS_EDITOR_USER" > /dev/null 2>&1; then
+        print_status "Creating editor user..."
+        docker compose -f $COMPOSE_FILE exec -T wpcli wp user create \
+            "$WORDPRESS_EDITOR_USER" \
+            "$WORDPRESS_EDITOR_EMAIL" \
+            --user_pass="$WORDPRESS_EDITOR_PASSWORD" \
+            --role="editor" \
+            --display_name="Editor User"
+    else
+        print_status "Editor user already exists, updating password..."
+        docker compose -f $COMPOSE_FILE exec -T wpcli wp user update \
+            "$WORDPRESS_EDITOR_USER" \
+            --user_pass="$WORDPRESS_EDITOR_PASSWORD"
+    fi
     
     print_status "WordPress setup completed!"
 }
